@@ -1,0 +1,13 @@
+features:
+- amplitude_mean
+- amplitude_std
+- amplitude_max
+- amplitude_min
+- amplitude_range
+- phase_circular_mean
+- phase_circular_std
+- phase_stability
+- autocorr_lag1
+- zero_crossing_rate
+- spectral_entropy
+- temporal_variance

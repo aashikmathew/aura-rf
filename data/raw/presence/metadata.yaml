@@ -1,0 +1,12 @@
+duration: 5.0
+n_empty: 100
+n_occupied: 100
+n_samples: 200
+n_subcarriers: 30
+sample_rate: 100.0
+seed: 42
+shape:
+- 200
+- 500
+- 30
+tier: 1
