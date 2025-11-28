@@ -315,21 +315,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📧 Contact
 
 **Aashik Mathew**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- Email: your.email@example.com
-
----
-
-## 🗺️ Roadmap
-
-- [x] ~~Phase 1: Project foundation~~
-- [ ] Phase 2: Tier 1 implementation (presence detection)
-- [ ] Phase 3: Tier 2 implementation (activity recognition)
-- [ ] Phase 4: Tier 3 implementation (identity recognition)
-- [ ] Phase 5: Real-time dashboard
-- [ ] Phase 6: Hardware integration (with real WiFi devices)
-
----
+- GitHub: [@Aashikmathew](https://github.com/aashikmathew)
 
 <div align="center">
 
