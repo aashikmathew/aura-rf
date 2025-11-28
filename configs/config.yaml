@@ -1,0 +1,272 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# WiFi-Sense Configuration File
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ───────────────────────────────────────────────────────────────────────────────
+# Simulation Parameters
+# ───────────────────────────────────────────────────────────────────────────────
+simulation:
+  # WiFi Parameters
+  n_subcarriers: 30           # Number of OFDM subcarriers (typical for 802.11n)
+  sample_rate: 100            # Hz - CSI sampling rate
+  carrier_freq: 5.2e9         # 5.2 GHz - WiFi 5 GHz band
+  bandwidth: 20e6             # 20 MHz channel bandwidth
+  
+  # Room Configuration
+  room:
+    dimensions: [5, 4, 3]     # meters [Length, Width, Height]
+    tx_position: [0, 2, 1.5]  # Transmitter position [x, y, z]
+    rx_position: [5, 2, 1.5]  # Receiver position [x, y, z]
+    
+  # Multipath Configuration
+  multipath:
+    n_paths: 4                # Number of propagation paths
+    enable_los: true          # Include line-of-sight path
+    reflection_coeff: 0.7     # Wall reflection coefficient (0-1)
+    
+  # Noise Model
+  noise:
+    thermal_floor: -90        # dBm - Thermal noise floor
+    snr_db: 20                # Signal-to-noise ratio in dB
+    interference_prob: 0.1    # Probability of interference burst
+    interference_power: -70   # dBm - Interference power when present
+    
+  # Human Model
+  human:
+    rcs: 0.5                  # Radar cross-section (m²)
+    height: 1.7               # Average human height (m)
+    width: 0.4                # Average human width (m)
+
+# ───────────────────────────────────────────────────────────────────────────────
+# Data Processing Parameters
+# ───────────────────────────────────────────────────────────────────────────────
+data:
+  # Window Configuration
+  window_size: 500            # samples (5 seconds at 100Hz)
+  step_size: 250              # 50% overlap for sliding window
+  
+  # Dataset Split
+  train_ratio: 0.7
+  val_ratio: 0.15
+  test_ratio: 0.15
+  random_seed: 42
+  
+  # Preprocessing
+  preprocessing:
+    enable_phase_unwrap: true
+    enable_outlier_removal: true
+    outlier_threshold: 3.0    # std deviations
+    enable_lowpass: true
+    lowpass_cutoff: 20        # Hz
+    enable_normalization: true
+    normalization_method: "zscore"  # Options: zscore, minmax
+
+# ───────────────────────────────────────────────────────────────────────────────
+# Tier 1: Presence Detection
+# ───────────────────────────────────────────────────────────────────────────────
+tier1:
+  # Model Configuration
+  model: "random_forest"
+  
+  # Feature Selection
+  features:
+    # Amplitude features
+    - amplitude_mean
+    - amplitude_std
+    - amplitude_max
+    - amplitude_min
+    - amplitude_range
+    # Phase features
+    - phase_circular_mean
+    - phase_circular_std
+    - phase_stability
+    # Temporal features
+    - autocorr_lag1
+    - zero_crossing_rate
+    - spectral_entropy
+    - temporal_variance
+    
+  # Random Forest Hyperparameters
+  random_forest:
+    n_estimators: 100
+    max_depth: 10
+    min_samples_split: 5
+    min_samples_leaf: 2
+    random_state: 42
+    n_jobs: -1
+    
+  # Training
+  training:
+    cv_folds: 5
+    
+  # Data Generation
+  data_generation:
+    n_samples_empty: 500
+    n_samples_occupied: 500
+    duration_seconds: 5
+
+# ───────────────────────────────────────────────────────────────────────────────
+# Tier 2: Activity Recognition
+# ───────────────────────────────────────────────────────────────────────────────
+tier2:
+  # Activities
+  activities:
+    - standing
+    - walking
+    - sitting
+    - waving
+    - falling
+    
+  # Data Generation
+  data_generation:
+    n_samples_per_activity: 200
+    duration_seconds: 5
+    
+  # Spectrogram Configuration
+  spectrogram:
+    nperseg: 64
+    noverlap: 32
+    nfft: 128
+    image_size: [128, 128]
+    colormap: "viridis"
+    
+  # Wavelet Configuration
+  wavelet:
+    wavelet_type: "db4"       # Daubechies 4
+    decomposition_level: 5
+    
+  # CNN Model
+  cnn:
+    input_shape: [128, 128, 1]
+    filters: [32, 64, 128]
+    kernel_size: 3
+    pool_size: 2
+    dense_units: [256]
+    dropout: 0.5
+    activation: "relu"
+    output_activation: "softmax"
+    
+  # LSTM Model
+  lstm:
+    input_shape: [100, 30]    # [timesteps, features]
+    lstm_units: [64, 32]
+    dense_units: [64]
+    dropout: 0.3
+    recurrent_dropout: 0.2
+    activation: "relu"
+    output_activation: "softmax"
+    
+  # Training
+  training:
+    batch_size: 32
+    epochs: 100
+    learning_rate: 0.001
+    optimizer: "adam"
+    loss: "categorical_crossentropy"
+    metrics: ["accuracy"]
+    early_stopping_patience: 10
+    reduce_lr_patience: 5
+    reduce_lr_factor: 0.5
+
+# ───────────────────────────────────────────────────────────────────────────────
+# Tier 3: Identity Recognition
+# ───────────────────────────────────────────────────────────────────────────────
+tier3:
+  # Person Configuration
+  n_persons: 5
+  n_shots: 5                  # Few-shot learning samples per person
+  
+  # Person Characteristics (for simulation)
+  persons:
+    person_a:
+      height: 1.75
+      weight: 70
+      stride_length: 0.75
+      walking_speed: 1.2
+    person_b:
+      height: 1.65
+      weight: 60
+      stride_length: 0.65
+      walking_speed: 1.0
+    person_c:
+      height: 1.85
+      weight: 85
+      stride_length: 0.85
+      walking_speed: 1.4
+    person_d:
+      height: 1.70
+      weight: 65
+      stride_length: 0.70
+      walking_speed: 1.1
+    person_e:
+      height: 1.80
+      weight: 75
+      stride_length: 0.80
+      walking_speed: 1.3
+      
+  # Gait Feature Extraction
+  gait:
+    enable_periodicity: true
+    enable_speed_estimation: true
+    enable_stride_analysis: true
+    
+  # Siamese Network
+  siamese:
+    embedding_dim: 256
+    shared_encoder:
+      conv1d_filters: [64, 128]
+      conv1d_kernel: 3
+      lstm_units: 128
+      dense_units: [256, 256]
+    margin: 0.5               # Contrastive loss margin
+    
+  # Training
+  training:
+    batch_size: 16
+    epochs: 100
+    learning_rate: 0.0001
+    optimizer: "adam"
+    loss: "contrastive"
+    early_stopping_patience: 15
+
+# ───────────────────────────────────────────────────────────────────────────────
+# Visualization & Dashboard
+# ───────────────────────────────────────────────────────────────────────────────
+visualization:
+  # Dashboard Configuration
+  dashboard:
+    title: "WiFi-Sense: Human Activity Recognition"
+    theme: "dark"
+    refresh_rate: 1000        # ms
+    
+  # Plot Configuration
+  plots:
+    figure_size: [12, 6]
+    dpi: 100
+    style: "seaborn-v0_8-darkgrid"
+    
+  # Real-time Visualization
+  realtime:
+    buffer_size: 500          # samples to keep in memory
+    update_interval: 100      # ms
+
+# ───────────────────────────────────────────────────────────────────────────────
+# Logging & Monitoring
+# ───────────────────────────────────────────────────────────────────────────────
+logging:
+  level: "INFO"               # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  save_to_file: true
+  log_dir: "logs"
+  
+# ───────────────────────────────────────────────────────────────────────────────
+# Paths
+# ───────────────────────────────────────────────────────────────────────────────
+paths:
+  data_dir: "data"
+  raw_data_dir: "data/raw"
+  processed_data_dir: "data/processed"
+  models_dir: "models"
+  logs_dir: "logs"
+  results_dir: "results"
+
